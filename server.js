@@ -17,6 +17,7 @@ const Comment = mongoose.model('Comment', {
   name: String,
   content: String,
   timestamp: { type: Date, default: Date.now },
+  ip: String
 });
 
 app.use(express.json());
@@ -92,9 +93,12 @@ app.post('/comments', async (req, res) => {
       return res.status(400).json({ message: 'Invalid name or content' });
     }
 
+    const userIp = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+
     const newComment = new Comment({
       name,
       content,
+      ip: userIp,
     });
 
     await newComment.save();
